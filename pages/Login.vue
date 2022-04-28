@@ -47,10 +47,11 @@ export default {
     
     async login () {
       try {
-        console.log("gogo")
+        console.log("login go")
         //let rslt = await this.$axios.get('/api/user')
         //let rslt = await this.$axios.get('/api')
-        let rslt = await this.$axios.get('/api/')
+        let rslt = await this.$axios.get('/api/',{params: {id: this.UserId, pw: this.UserPwd}})
+        //let rslt = await this.$axios.get('/api/login')
         //let rslt = await this.$axios.get('https://jsonplaceholder.typicode.com/users/')
         //console.log(rslt)
         //console.log(rslt.data)
@@ -90,16 +91,16 @@ export default {
       console.log(rslt);
       console.log(rslt.data[0].username);
     },
-    async login2 () {
-      try {
-        await this.$store.dispatch('login', {
-          id: this.frmId,
-          pw: this.frmPw
-        }).then(() => this.redirect())
-      } catch (e) {
-        this.returnMsg = e.message
-      }
-    },
+    // async login2 () {
+    //   try {
+    //     await this.$store.dispatch('login', {
+    //       id: this.frmId,
+    //       pw: this.frmPw
+    //     }).then(() => this.redirect())
+    //   } catch (e) {
+    //     this.returnMsg = e.message
+    //   }
+    // },
   }
 }
 </script>
