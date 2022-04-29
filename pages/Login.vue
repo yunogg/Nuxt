@@ -18,13 +18,14 @@
             prepend-icon="mdi-lock"
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             @click:append="showPassword = !showPassword"
+            @keyup.enter="login"
           />
         </v-form>
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
         <v-btn color="success" @click="$router.push('/signup')">등록</v-btn>
-        <v-btn color="info" @click="login" >로그인</v-btn>
+        <v-btn color="info" @click="login">로그인</v-btn>
       </v-card-actions>
     </v-card>
   </v-app>

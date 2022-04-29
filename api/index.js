@@ -5,13 +5,16 @@ const conn = require('./db');
 
 app.get('/', (req, res) => {
   console.log(req.query)
-  conn.query('select * from user where user_id = ?;',req.query.id, function(err, rows, fields){
+  const sql = 'select * from user where user_id = ?;'
+  conn.query(sql ,req.query.id, function(err, rows, fields){
     if(!err){
-      console.log(Object.toString(rows))
-      let id = JSON.stringify(rows[0].user_id)
-      let pwd = JSON.stringify(rows[0].user_pw)
-      console.log("id : " + id + "pwd : " + pwd)
-        if(req.query.pwd == pwd){
+        console.log(JSON.stringify(rows[0]))
+      let user_id = rows[0].user_id
+      let user_pw = rows[0].user_pw
+        console.log("query result : id_" + user_id + " pwd_" + user_pw)
+      let pw = user_pw.toString()
+      let pwd = req.query.pw.toString()
+        if(pw === pwd){
           console.log("true")
           res.send(true)
         }
