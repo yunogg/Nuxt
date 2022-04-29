@@ -52,19 +52,21 @@ export default {
         //let rslt = await this.$axios.get('/api/user')
         //let rslt = await this.$axios.get('/api')
         let rslt = await this.$axios.get('/api/',{params: {id: this.UserId, pw: this.UserPwd}})
-        //let rslt = await this.$axios.get('/api/login')
         //let rslt = await this.$axios.get('https://jsonplaceholder.typicode.com/users/')
-        //console.log(rslt)
-        //console.log(rslt.data)
         // await this.$store.dispatch('check', {
         //   id: this.UserId,
         //   pw: this.UserPwd
         // }).then(() => this.redirect())
         // this.$http.post('api/check', {
-        //   id: this.UserId,
-        //   pwd: this.UserPwd
+
         // }).then(console.log("ththth")
         console.log(rslt.data)
+        if(rslt.data){
+          this.redirect(this.$router.push('/Main'))
+        }else{
+          alert(false)
+        }
+        
       } catch (e) {
         console.log("err");
         this.returnMsg = e.message
@@ -72,7 +74,7 @@ export default {
     },
     redirect () {
       console.log("redirect")
-      this.$router.push('/Main')
+
     },
       //Main페이지 이동
       //this.$router.push('/main')
