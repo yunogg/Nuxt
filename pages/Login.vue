@@ -10,6 +10,7 @@
             v-model="UserId" 
             label="Username" 
             prepend-icon="mdi-account-circle"
+            :rules="[required]"
           />
           <v-text-field
             v-model="UserPwd" 
@@ -17,6 +18,7 @@
             label="Password"
             prepend-icon="mdi-lock"
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            :rules="[required]"
             @click:append="showPassword = !showPassword"
             @keyup.enter="login"
           />
@@ -43,10 +45,20 @@ export default {
     }
   },
   methods: {
-    //login: function() {
-    //let vm = this.UserId;
-    
+    required: function(value) {
+        if (value) {
+          this.value = true
+          return true;
+        } else {
+          this.valid = false
+          return 'This field is required.';
+        }
+    },   
     async login () {
+      if(this.UserId.length < 1 || this.UserPwd.length < 1) {
+        alert("ID 또는 비밀번호를 입력하세요.")
+        return false
+        }
       try {
         console.log("login go")
         //let rslt = await this.$axios.get('/api/user')
@@ -57,14 +69,11 @@ export default {
         //   id: this.UserId,
         //   pw: this.UserPwd
         // }).then(() => this.redirect())
-        // this.$http.post('api/check', {
-
-        // }).then(console.log("ththth")
         console.log(rslt.data)
         if(rslt.data){
-          this.redirect(this.$router.push('/Main'))
+          this.redirect(this.$router.push('/main'))
         }else{
-          alert(false)
+          alert("ID 또는 비밀번호를 확인하세요.")
         }
         
       } catch (e) {
@@ -94,16 +103,6 @@ export default {
       console.log(rslt);
       console.log(rslt.data[0].username);
     },
-    // async login2 () {
-    //   try {
-    //     await this.$store.dispatch('login', {
-    //       id: this.frmId,
-    //       pw: this.frmPw
-    //     }).then(() => this.redirect())
-    //   } catch (e) {
-    //     this.returnMsg = e.message
-    //   }
-    // },
   }
 }
 </script>

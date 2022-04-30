@@ -1,7 +1,7 @@
 <template>
   <main>
     <h1>Home page</h1>
-    <NuxtLink to="/Login">
+    <NuxtLink to="/login">
       About (internal link that belongs to the Nuxt App)
     </NuxtLink>
     <a href="https://nuxtjs.org">External Link to another page</a>
