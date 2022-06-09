@@ -40,27 +40,10 @@
           <v-col cols="2">
             <v-sheet rounded="lg">
               <v-list color="transparent">
-                <v-list-item
-                  v-for="n in 5"
-                  :key="n"
-                  link
-                >
+                <v-list-item @click="this.$router.push('/login')">
                   <v-list-item-content>
                     <v-list-item-title>
-                      List Item {{ n }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-divider class="my-2"></v-divider>
-
-                <v-list-item
-                  link
-                  color="grey lighten-4"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      Refresh
+                      releaseList
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -73,7 +56,7 @@
               min-height="70vh"
               rounded="lg"
             >
-              <!--  -->
+            <releaseList></releaseList>
             </v-sheet>
           </v-col>
         </v-row>
@@ -83,14 +66,44 @@
 </template>
 
 <script>
+import releaseList from '../components/releaseList.vue'
+
   export default {
     data: () => ({
       links: [
-        'Dashboard',
-        'Messages',
-        'Profile',
-        'Updates',
+        'admin',
+        'logout'
       ],
+      menus: [
+        {
+          title: 'ReleaseList',
+          vertical: 'ReleaseList',
+          link: '/releaseList'
+        },
+        {
+          title: 'Order',
+          vertical: 'Order',
+          link: '/orders'
+        },
+        {
+          title: 'Customer',
+          vertical: 'Customer',
+          link: '/customers'
+        },
+        {
+          title: 'Product',
+          vertical: 'Product',
+          link: '/products'
+        },
+        {
+          title: 'About',
+          vertical: 'About',
+          link: '/about'
+        }
+      ]
     }),
+    components: {
+      releaseList
+    }
   }
 </script>

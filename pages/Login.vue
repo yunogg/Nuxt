@@ -60,16 +60,9 @@ export default {
         return false
         }
       try {
-        console.log("login go")
         //let rslt = await this.$axios.get('/api/user')
-        //let rslt = await this.$axios.get('/api')
-        let rslt = await this.$axios.get('/api/',{params: {id: this.UserId, pw: this.UserPwd}})
-        //let rslt = await this.$axios.get('https://jsonplaceholder.typicode.com/users/')
-        // await this.$store.dispatch('check', {
-        //   id: this.UserId,
-        //   pw: this.UserPwd
-        // }).then(() => this.redirect())
-        console.log(rslt.data)
+        let rslt = await this.$axios.get('/api/login',{params: {id: this.UserId, pw: this.UserPwd}})
+        console.log(rslt)
         if(rslt.data){
           this.redirect(this.$router.push('/main'))
         }else{
@@ -77,7 +70,7 @@ export default {
         }
         
       } catch (e) {
-        console.log("err");
+        alert("error")
         this.returnMsg = e.message
       }
     },
@@ -85,6 +78,24 @@ export default {
       console.log("redirect")
 
     },
+    async fetchSomething() {
+      alert("fetch something");
+      let rslt = await this.$axios.get('https://jsonplaceholder.typicode.com/users/')
+      console.log(rslt);
+      console.log(rslt.data[0].username);
+    },
+  }
+}
+</script>
+
+
+<!--
+      //let rslt = await this.$axios.get('https://jsonplaceholder.typicode.com/users/')
+      // await this.$store.dispatch('check', {
+      //   id: this.UserId,
+      //   pw: this.UserPwd
+      // }).then(() => this.redirect())
+
       //Main페이지 이동
       //this.$router.push('/main')
       
@@ -96,13 +107,4 @@ export default {
       // this.$http.get('api/movies')
       // .then((response) => {
       //   response.data? $push('/signup') : $push('/signup')
-      // })
-    async fetchSomething() {
-      alert("fetch something");
-      let rslt = await this.$axios.get('https://jsonplaceholder.typicode.com/users/')
-      console.log(rslt);
-      console.log(rslt.data[0].username);
-    },
-  }
-}
-</script>
+-->
