@@ -7,6 +7,16 @@
       <v-flex xs12>
         <v-card-actions>
           <v-btn color="info" @click="list">조회</v-btn>
+          <!-- <template v-slot:activator="{ on, attrs }"> -->
+          <v-btn
+            color="primary"
+            v-bind="attrs"
+            v-on="on"
+            @click="dialog = true"
+          >
+          등록
+          </v-btn>
+          <!-- </template> -->
         </v-card-actions>
         <v-data-table
           :headers="headers"
@@ -26,26 +36,158 @@
             </template>
         </v-data-table>
 
-        <v-dialog v-model="dialog" persistent max-width="900px">
-          <v-card>
-            <v-card-title>
-              <template>
-                <span class="headline" large>소스목록</span>
-              </template>
-              <v-spacer></v-spacer>
-              <v-btn icon @click="closeDialog()"> 
-                닫기
-              </v-btn>
-            </v-card-title>
-            <!-- <v-card-text>
-              <v-row>
-                <v-col cols="12" sm="12" md="12" style="position: relative; border:1px solid #41B883; border-style:dashed; ">
-                  소스리스트내역
-                </v-col>
-              </v-row>
-            </v-card-text> -->
-          </v-card>
-        </v-dialog>
+
+                  <v-dialog
+                    v-model="dialog"
+                    persistent
+                    max-width="600px"
+                  >
+
+                    <v-card>
+                      <v-card-title>
+                        <span class="text-h5">배포 등록</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-container>
+                          <v-row>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                                      <v-dialog
+                                        ref="dialog"
+                                        v-model="modal"
+                                        :return-value.sync="date"
+                                        persistent
+                                        width="290px"
+                                      >
+                                        <template v-slot:activator="{ on, attrs }">
+                                          <v-text-field
+                                            v-model="date"
+                                            label="배포일"
+                                            prepend-icon="mdi-calendar"
+                                            readonly
+                                            v-bind="attrs"
+                                            v-on="on"
+                                          ></v-text-field>
+                                        </template>
+                                        <v-date-picker
+                                          v-model="date"
+                                          scrollable
+                                        >
+                                          <v-spacer></v-spacer>
+                                          <v-btn
+                                            text
+                                            color="primary"
+                                            @click="modal=false"
+                                          >
+                                            Cancel
+                                          </v-btn>
+                                          <v-btn
+                                            text
+                                            color="primary"
+                                            @click="$refs.dialog.save(date)"
+                                          >
+                                            OK
+                                          </v-btn>
+                                        </v-date-picker>
+                                      </v-dialog>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                              <v-select
+                                :items="['MIS', 'BIS']"
+                                label="시스템구분"
+                                required
+                              ></v-select>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                              <v-select
+                                :items="['APP', 'DB']"
+                                label="업무구분"
+                                required
+                              ></v-select>
+                            </v-col>
+                            <v-col cols="12">
+                              <v-text-field
+                                label="배포명"
+                                required
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                              <v-text-field
+                                label="배포내용"
+                                required
+                              ></v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                            >
+                              <v-select
+                                :items="['0-17', '18-29', '30-54', '54+']"
+                                label="Age*"
+                                required
+                              ></v-select>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                            >
+                              <v-autocomplete
+                                :items="['Skiing', 'Ice hockey', 'Soccer', 'Basketball', 'Hockey', 'Reading', 'Writing', 'Coding', 'Basejump']"
+                                label="Interests"
+                                multiple
+                              ></v-autocomplete>
+                            </v-col>
+                            </v-row>
+                            <v-row>
+
+                              <v-btn @click="add" class="primary">add</v-btn>
+                              <br>
+                              <div
+                                v-for="(textField, i) in textFields"
+                                :key="i"
+                                class="text-fields-row"
+                                >
+                                  <v-text-field
+                                  :label="textField.label1"
+                                  v-model="textField.value1"
+                                  ></v-text-field>
+                                  <v-btn @click="remove(i)" class="error">delete</v-btn>
+                                </div>
+
+                          </v-row>
+                        </v-container>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="dialog = false"
+                        >
+                          Close
+                        </v-btn>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="dialog = false"
+                        >
+                          Save
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+
 
       </v-flex>
     </v-layout>
@@ -58,6 +200,9 @@ export default {
   data () {
     return {
       // ..
+      modal: false,
+      dialog: false,
+      textFields: [],
       articles: [],
       headers: [
         { text: '예정일', value: 'release_dt', sortable: true },
@@ -94,12 +239,24 @@ export default {
     clickPop(realease_id) {
       alert(realease_id)
     },
-    openDialog() { //Dialog 열리는 동작
-      this.dialog = true;
+    openDialog() {
+      this.dialog = true
     },
-    closeDialog() { //Dialog 닫히는 동작
-      this.dialog = false;
+    closeDialog() {
+      this.dialog = false
     },
+    add () {
+        this.textFields.push({ 
+          label1: "foo", 
+          value1: "",
+          label2: "bar",
+          value2: ""
+        })
+     },
+    
+     remove (index) {
+         this.textFields.splice(index, 1)
+     }
   }
 }
 </script>
