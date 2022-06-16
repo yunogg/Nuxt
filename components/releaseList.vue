@@ -10,11 +10,15 @@
           <!-- <template v-slot:activator="{ on, attrs }"> -->
           <v-btn
             color="primary"
-            v-bind="attrs"
-            v-on="on"
             @click="dialog = true"
-          >
+            >
           등록
+          </v-btn>
+            <v-btn
+            color="red"
+            dark
+            >
+          삭제
           </v-btn>
           <!-- </template> -->
         </v-card-actions>
@@ -23,11 +27,11 @@
           :items="articles"
           :loading="loading">
             <template v-slot:item="{ item }">
-              <tr @click="clickPop(item.realease_id)" v-b-modal.modal-lg>
+              <tr @click="clickPop(item.release_id)" >
                 <td>{{ item.release_dt}}</td>
                 <td>{{ item.sys_code }}</td>
                 <td>{{ item.work_code }}</td>
-                <td>{{ item.title }}</td>
+                <td>{{ item.content }}</td>
                 <td>{{ item.register_dt }}</td>
                 <td>{{ item.register_id }}</td>
                 <td>{{ item.approve_id }}</td>
@@ -55,44 +59,30 @@
                               sm="6"
                               md="4"
                             >
-                                      <v-dialog
-                                        ref="dialog"
-                                        v-model="modal"
-                                        :return-value.sync="date"
-                                        persistent
-                                        width="290px"
-                                      >
-                                        <template v-slot:activator="{ on, attrs }">
-                                          <v-text-field
-                                            v-model="date"
-                                            label="배포일"
-                                            prepend-icon="mdi-calendar"
-                                            readonly
-                                            v-bind="attrs"
-                                            v-on="on"
-                                          ></v-text-field>
-                                        </template>
-                                        <v-date-picker
-                                          v-model="date"
-                                          scrollable
-                                        >
-                                          <v-spacer></v-spacer>
-                                          <v-btn
-                                            text
-                                            color="primary"
-                                            @click="modal=false"
-                                          >
-                                            Cancel
-                                          </v-btn>
-                                          <v-btn
-                                            text
-                                            color="primary"
-                                            @click="$refs.dialog.save(date)"
-                                          >
-                                            OK
-                                          </v-btn>
-                                        </v-date-picker>
-                                      </v-dialog>
+                                <v-menu
+                                  v-model="menu2"
+                                  :close-on-content-click="false"
+                                  :nudge-right="40"
+                                  transition="scale-transition"
+                                  offset-y
+                                  min-width="auto"
+                                >
+                                  <template v-slot:activator="{ on, attrs }">
+                                    <v-text-field
+                                      v-model="releaseObject.release_dt"
+                                      label="배포일"
+                                      prepend-icon="mdi-calendar"
+                                      readonly
+                                      v-bind="attrs"
+                                      v-on="on"
+                                      @blur="date = parseDate(releaseObject.release_dt)"
+                                    ></v-text-field>
+                                  </template>
+                                  <v-date-picker
+                                    v-model="releaseObject.release_dt"
+                                    @input="menu2 = false"
+                                  ></v-date-picker>
+                                </v-menu>
                             </v-col>
                             <v-col
                               cols="12"
@@ -100,8 +90,9 @@
                               md="4"
                             >
                               <v-select
-                                :items="['MIS', 'BIS']"
+                                :items="['공통', 'MIS', 'BIS']"
                                 label="시스템구분"
+                                v-model="releaseObject.sys_code"
                                 required
                               ></v-select>
                             </v-col>
@@ -113,22 +104,25 @@
                               <v-select
                                 :items="['APP', 'DB']"
                                 label="업무구분"
+                                v-model="releaseObject.work_code"
                                 required
                               ></v-select>
                             </v-col>
-                            <v-col cols="12">
+                            <!-- <v-col cols="12">
                               <v-text-field
                                 label="배포명"
+                                v-model="releaseObject.rele"
                                 required
                               ></v-text-field>
-                            </v-col>
+                            </v-col> -->
                             <v-col cols="12">
                               <v-text-field
                                 label="배포내용"
+                                v-model="releaseObject.content"
                                 required
                               ></v-text-field>
                             </v-col>
-                            <v-col
+                            <!-- <v-col
                               cols="12"
                               sm="6"
                             >
@@ -137,34 +131,29 @@
                                 label="Age*"
                                 required
                               ></v-select>
-                            </v-col>
-                            <v-col
-                              cols="12"
-                              sm="6"
-                            >
-                              <v-autocomplete
-                                :items="['Skiing', 'Ice hockey', 'Soccer', 'Basketball', 'Hockey', 'Reading', 'Writing', 'Coding', 'Basejump']"
-                                label="Interests"
-                                multiple
-                              ></v-autocomplete>
-                            </v-col>
-                            </v-row>
-                            <v-row>
+                            </v-col> -->
 
-                              <v-btn @click="add" class="primary">add</v-btn>
+                              <v-col cols="12">
+                                <v-btn @click="add" class="primary">add</v-btn>
+                              </v-col>
                               <br>
                               <div
                                 v-for="(textField, i) in textFields"
-                                :key="i"
-                                class="text-fields-row"
-                                >
-                                  <v-text-field
-                                  :label="textField.label1"
-                                  v-model="textField.value1"
-                                  ></v-text-field>
-                                  <v-btn @click="remove(i)" class="error">delete</v-btn>
-                                </div>
-
+                                :key="i">
+                                  <v-col cols="12" md="9">
+                                    <v-text-field
+                                      cols="12"
+                                      :label="textField.label1"
+                                      v-model="textField.value1">
+                                    </v-text-field>
+                                  </v-col>
+                                  <v-col cols="12" md="3">
+                                    <v-btn @click="remove(i)"
+                                      class="error">
+                                       delete
+                                    </v-btn>
+                                  </v-col>
+                              </div>
                           </v-row>
                         </v-container>
                       </v-card-text>
@@ -180,15 +169,13 @@
                         <v-btn
                           color="blue darken-1"
                           text
-                          @click="dialog = false"
+                          @click="saveDialog"
                         >
                           Save
                         </v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-dialog>
-
-
       </v-flex>
     </v-layout>
   </v-container>
@@ -197,18 +184,28 @@
 
 export default {
   name: 'App',
+  mounted:function(){
+        this.list();
+  },
   data () {
     return {
       // ..
-      modal: false,
+      menu2: false,
       dialog: false,
       textFields: [],
       articles: [],
+      releaseObject : {
+        release_id: "ERP_000003",
+        release_dt: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        sys_code: "",
+        work_code: "",
+        content: ""
+      },
       headers: [
         { text: '예정일', value: 'release_dt', sortable: true },
         { text: '시스템', value: 'sys_code', sortable: true },
         { text: '업무', value: 'work_code', sortable: true },
-        { text: '제목', value: 'content', sortable: true },
+        { text: '내용', value: 'content', sortable: true },
         { text: '등록일', value: 'register_dt', sortable: true },
         { text: '등록자', value: 'register_id', sortable: true },
         { text: '승인자', value: 'approve_id', sortable: true },
@@ -225,7 +222,7 @@ export default {
       if (this.loading) return
         try {
           this.loading = true
-          let rslt = await this.$axios.get('/api/article')
+          let rslt = await this.$axios.get('/api/article/select')
           console.log(rslt)
           this.articles = rslt.data
           console.log(rslt.data)
@@ -236,27 +233,52 @@ export default {
           this.loading = false
         }
     },
-    clickPop(realease_id) {
-      alert(realease_id)
+    clickPop(release_id) {
+      alert(release_id)
     },
     openDialog() {
       this.dialog = true
     },
     closeDialog() {
       this.dialog = false
+      this.list()
+    },
+    async saveDialog() {
+        try {
+          let jsonArray = JSON.stringify(this.releaseObject);
+          console.log(jsonArray);
+          let rslt = await this.$axios.get('/api/article/save', {params : { data: jsonArray}})
+          if(rslt) alert("저장 완료!")
+          this.closeDialog();
+        } catch (e){
+          alert("error")
+          this.returnMsg = e.message
+          //console.log(returnMsg);
+        }
+      
     },
     add () {
         this.textFields.push({ 
-          label1: "foo", 
-          value1: "",
-          label2: "bar",
-          value2: ""
+          label1: "source", 
+          value1: ""
         })
      },
     
      remove (index) {
          this.textFields.splice(index, 1)
-     }
+     },
+     initialState(){
+      this.releaseObject.release_id = ''
+      this.releaseObject.release_id = ''
+      this.releaseObject.release_id = ''
+      this.releaseObject.release_id = ''
+      this.releaseObject.release_id = ''
+     },
+    parseDate (date) {
+      if (!date) return null
+      const [month, day, year] = date.split('-')
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    },
   }
 }
 </script>

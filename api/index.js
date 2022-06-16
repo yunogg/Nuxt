@@ -36,7 +36,7 @@ app.get('/login', (req, res) => {
   })
 })
 
-app.get('/article', (req, res) => {
+app.get('/article/select', (req, res) => {
   console.log("request in")
   const sql = 'select * from ERM.release;'
   conn.query(sql ,req.query.id, function(err, rows, fields){
@@ -57,6 +57,46 @@ app.get('/article', (req, res) => {
       }
   })
 })
+
+
+app.get('/article/save', (req, res) => {
+  console.log(req.query.data)
+  let params=JSON.parse(req.query.data);
+  console.log(params);
+  var sql = 'insert into ERM.release (release_id, release_dt, sys_code, work_code, content) values(?)';
+  var values = [
+    [params.release_id, params.register_dt, params.sys_code, params.work_code, params.content]
+    ];
+    conn.query(sql, values, function(err, result){
+      if (err) throw err;
+      if (result.affectedRows < 1){
+        console.log("release inserting job failed");
+        res.send(false);
+      }
+      console.log("Number of records inserted: " + result.affectedRows);
+      res.send(true);
+     });
+})
+
+app.get('/article/delete', (req, res) => {
+  console.log(req.query.data)
+  let params=JSON.parse(req.query.data);
+  console.log(params);
+  var sql = 'insert into ERM.release (release_id, release_dt, sys_code, work_code, content) values(?)';
+  var values = [
+    [params.release_id, params.register_dt, params.sys_code, params.work_code, params.content]
+    ];
+    conn.query(sql, values, function(err, result){
+      if (err) throw err;
+      if (result.affectedRows < 1){
+        console.log("release inserting job failed");
+        res.send(false);
+      }
+      console.log("Number of records inserted: " + result.affectedRows);
+      res.send(true);
+     });
+})
+
 
 // const user = require('./user')
 // app.use('/user', user)
