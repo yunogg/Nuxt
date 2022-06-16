@@ -108,13 +108,6 @@
                                 required
                               ></v-select>
                             </v-col>
-                            <!-- <v-col cols="12">
-                              <v-text-field
-                                label="배포명"
-                                v-model="releaseObject.rele"
-                                required
-                              ></v-text-field>
-                            </v-col> -->
                             <v-col cols="12">
                               <v-text-field
                                 label="배포내용"
@@ -122,38 +115,27 @@
                                 required
                               ></v-text-field>
                             </v-col>
-                            <!-- <v-col
-                              cols="12"
-                              sm="6"
-                            >
-                              <v-select
-                                :items="['0-17', '18-29', '30-54', '54+']"
-                                label="Age*"
-                                required
-                              ></v-select>
-                            </v-col> -->
-
                               <v-col cols="12">
                                 <v-btn @click="add" class="primary">add</v-btn>
                               </v-col>
                               <br>
-                              <div
+                              <v-col
                                 v-for="(textField, i) in textFields"
-                                :key="i">
-                                  <v-col cols="12" md="9">
+                                :key="i"
+                                cols="12">
+                                  <v-col cols="12" sm="6" md="8">
                                     <v-text-field
-                                      cols="12"
                                       :label="textField.label1"
                                       v-model="textField.value1">
                                     </v-text-field>
                                   </v-col>
-                                  <v-col cols="12" md="3">
+                                  <v-col cols="12" sm="6" md="4">
                                     <v-btn @click="remove(i)"
                                       class="error">
                                        delete
                                     </v-btn>
                                   </v-col>
-                              </div>
+                              </v-col>
                           </v-row>
                         </v-container>
                       </v-card-text>
@@ -185,7 +167,7 @@
 export default {
   name: 'App',
   mounted:function(){
-        this.list();
+        //this.list();
   },
   data () {
     return {
@@ -195,7 +177,7 @@ export default {
       textFields: [],
       articles: [],
       releaseObject : {
-        release_id: "ERP_000003",
+        release_id: "",
         release_dt: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
         sys_code: "",
         work_code: "",
@@ -224,6 +206,11 @@ export default {
           this.loading = true
           let rslt = await this.$axios.get('/api/article/select')
           console.log(rslt)
+          //데이터 없을 경우 예외처리
+            if (!rslt){
+              this.loading = false
+              return
+            }
           this.articles = rslt.data
           console.log(rslt.data)
           this.loading = false
@@ -242,6 +229,7 @@ export default {
     closeDialog() {
       this.dialog = false
       this.list()
+      this.initialState()
     },
     async saveDialog() {
         try {
@@ -268,11 +256,11 @@ export default {
          this.textFields.splice(index, 1)
      },
      initialState(){
-      this.releaseObject.release_id = ''
-      this.releaseObject.release_id = ''
-      this.releaseObject.release_id = ''
-      this.releaseObject.release_id = ''
-      this.releaseObject.release_id = ''
+      this.releaseObject.release_dt = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+      this.releaseObject.sys_code = ''
+      this.releaseObject.work_code = ''
+      this.releaseObject.content = ''
+      //this.releaseObject. = ''
      },
     parseDate (date) {
       if (!date) return null
