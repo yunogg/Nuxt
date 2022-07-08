@@ -39,8 +39,6 @@
               </tr>
             </template>
         </v-data-table>
-
-
                   <v-dialog
                     v-model="dialog"
                     persistent
@@ -93,7 +91,7 @@
                                 :items="['공통', 'MIS', 'BIS']"
                                 label="시스템구분"
                                 v-model="releaseObject.sys_code"
-                                required
+                                :rules="[required]"
                               ></v-select>
                             </v-col>
                             <v-col
@@ -105,14 +103,14 @@
                                 :items="['APP', 'DB']"
                                 label="업무구분"
                                 v-model="releaseObject.work_code"
-                                required
+                                :rules="[required]"
                               ></v-select>
                             </v-col>
                             <v-col cols="12">
                               <v-text-field
                                 label="배포내용"
                                 v-model="releaseObject.content"
-                                required
+                                :rules="[required]"
                               ></v-text-field>
                             </v-col>
                               <v-col cols="12">
@@ -120,21 +118,17 @@
                               </v-col>
                               <br>
                               <v-col
-                                v-for="(textField, i) in textFields"
+                                v-for="(itemField, i) in itemFields"
                                 :key="i"
                                 cols="12">
-                                  <v-col cols="12" sm="6" md="8">
-                                    <v-text-field
-                                      :label="textField.label1"
-                                      v-model="textField.value1">
-                                    </v-text-field>
-                                  </v-col>
-                                  <v-col cols="12" sm="6" md="4">
-                                    <v-btn @click="remove(i)"
-                                      class="error">
-                                       delete
-                                    </v-btn>
-                                  </v-col>
+                                <v-text-field
+                                  :label="itemField.label1"
+                                  v-model="itemField.value1">
+                                </v-text-field>
+                                <v-btn @click="remove(i)"
+                                  class="error">
+                                    delete
+                                </v-btn>
                               </v-col>
                           </v-row>
                         </v-container>
@@ -174,11 +168,12 @@ export default {
       // ..
       menu2: false,
       dialog: false,
-      textFields: [],
+      itemFields: [],
       articles: [],
       releaseObject : {
         release_id: "",
         release_dt: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        app_code: "ERP",
         sys_code: "",
         work_code: "",
         content: ""
@@ -233,11 +228,21 @@ export default {
     },
     async saveDialog() {
         try {
+          if( !this.releaseObject.sys_code || !this.releaseObject.work_code || !this.releaseObject.content ) {
+            alert("입력 내용 확인 필요");
+            return false;
+          }
+          let sourceItems = JSON.stringify(this.itemFields)
+          console.log("count : " + this.itemFields.length)
+          let result = await this.$axios.get('/api/article/makeReleaseId')
+          let next_id = result.data
+          this.releaseObject.release_id = this.releaseObject.app_code + '_' + next_id
           let jsonArray = JSON.stringify(this.releaseObject);
           console.log(jsonArray);
           let rslt = await this.$axios.get('/api/article/save', {params : { data: jsonArray}})
-          if(rslt) alert("저장 완료!")
-          this.closeDialog();
+          let rslt2 = await this.$axios.get('/api/article/itemSave', {params : { release_id : this.releaseObject.release_id , sourceItems: sourceItems }})
+          if(rslt || rslt2) alert("저장 완료!")
+            this.closeDialog();
         } catch (e){
           alert("error")
           this.returnMsg = e.message
@@ -246,14 +251,14 @@ export default {
       
     },
     add () {
-        this.textFields.push({ 
+        this.itemFields.push({ 
           label1: "source", 
           value1: ""
         })
      },
     
      remove (index) {
-         this.textFields.splice(index, 1)
+         this.itemFields.splice(index, 1)
      },
      initialState(){
       this.releaseObject.release_dt = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
@@ -267,6 +272,15 @@ export default {
       const [month, day, year] = date.split('-')
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
     },
+    required: function(value) {
+        if (value) {
+          this.value = true
+          return true;
+        } else {
+          this.valid = false
+          return 'This field is required.';
+        }
+    },  
   }
 }
 </script>
