@@ -138,7 +138,7 @@
                         <v-btn
                           color="blue darken-1"
                           text
-                          @click="dialog = false"
+                          @click="closeDialog"
                         >
                           Close
                         </v-btn>
@@ -161,22 +161,22 @@
 export default {
   name: 'App',
   mounted:function(){
-        //this.list();
+        this.list();
   },
   data () {
     return {
       // ..
-      menu2: false,
-      dialog: false,
-      itemFields: [],
-      articles: [],
+      menu2 : false,
+      dialog : false,
+      itemFields : [],
+      articles : [],
       releaseObject : {
-        release_id: "",
-        release_dt: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-        app_code: "ERP",
-        sys_code: "",
-        work_code: "",
-        content: ""
+        release_id : "",
+        release_dt : (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        app_code : "ERP",
+        sys_code : "",
+        work_code : "",
+        content : ""
       },
       headers: [
         { text: '예정일', value: 'release_dt', sortable: true },
@@ -195,16 +195,18 @@ export default {
   // ..
   methods: {
     // ..
-    async list () {
+    async list() {
       if (this.loading) return
         try {
           this.loading = true
           let rslt = await this.$axios.get('/api/article/select')
-          console.log(rslt)
+          console.log(rslt.data)
           //데이터 없을 경우 예외처리
-            if (!rslt){
+            if (!rslt.data){
+              console.log("this is false")
               this.loading = false
-              return
+              alert("데이터가 없습니다");
+              return false;
             }
           this.articles = rslt.data
           console.log(rslt.data)
@@ -215,8 +217,10 @@ export default {
           this.loading = false
         }
     },
-    clickPop(release_id) {
-      alert(release_id)
+    async clickPop(release_id) {
+      this.selectReleaseObject(release_id);
+      this.dialog = true;
+      //this.openDialog()
     },
     openDialog() {
       this.dialog = true
@@ -232,17 +236,27 @@ export default {
             alert("입력 내용 확인 필요");
             return false;
           }
+          let jsonArray = JSON.stringify(this.releaseObject);
+          console.log(jsonArray);
           let sourceItems = JSON.stringify(this.itemFields)
           console.log("count : " + this.itemFields.length)
+          console.log("release_id : " + this.releaseObject.release_id);
+          if(this.releaseObject.release_id){
+            let rslt = await this.$axios.get('/api/article/update', {params : { data: jsonArray}})
+            let rslt1 = await this.$axios.get('/api/article/deleteItems', {params : { release_id : this.releaseObject.release_id }})
+            let rslt2 = await this.$axios.get('/api/article/saveItems', {params : { release_id : this.releaseObject.release_id , sourceItems: sourceItems }})
+            if(rslt && rslt1 && rslt2) alert("변경 완료!")
+            this.closeDialog();
+          }else{
           let result = await this.$axios.get('/api/article/makeReleaseId')
           let next_id = result.data
           this.releaseObject.release_id = this.releaseObject.app_code + '_' + next_id
-          let jsonArray = JSON.stringify(this.releaseObject);
-          console.log(jsonArray);
+          jsonArray = JSON.stringify(this.releaseObject);
           let rslt = await this.$axios.get('/api/article/save', {params : { data: jsonArray}})
-          let rslt2 = await this.$axios.get('/api/article/itemSave', {params : { release_id : this.releaseObject.release_id , sourceItems: sourceItems }})
-          if(rslt || rslt2) alert("저장 완료!")
+          let rslt2 = await this.$axios.get('/api/article/saveItems', {params : { release_id : this.releaseObject.release_id , sourceItems: sourceItems }})
+          if(rslt && rslt2) alert("저장 완료!")
             this.closeDialog();
+          }
         } catch (e){
           alert("error")
           this.returnMsg = e.message
@@ -250,24 +264,60 @@ export default {
         }
       
     },
-    add () {
+    async selectReleaseObject(release_id) {
+      try {
+        let rslt1 = await this.$axios.get('/api/article/selectReleaseObject', {params : { release_id : release_id }})
+        console.log("selectReleaseObject : " + rslt1.data);
+        rslt1 = rslt1.data;
+        console.log(rslt1);
+        this.releaseObject.release_id = rslt1.release_id || '';
+        this.releaseObject.release_dt = rslt1.register_dt || '';
+        this.releaseObject.app_code = rslt1.app_code || '';
+        this.releaseObject.sys_code = rslt1.sys_code || '';
+        this.releaseObject.work_code = rslt1.work_code || '';
+        this.releaseObject.content = rslt1.content || '';
+        console.log("object select 1 clear");
+        let rslt2 = await this.$axios.get('/api/article/selectReleaseObjectItems', {params : { release_id : release_id }})
+        console.log("selectReleaseObjectItems : " + JSON.stringify(rslt2.data));
+        let objectItems = [];
+        objectItems = rslt2.data;
+        console.log("objectItems : " + objectItems);
+         for (let i = 0; i < objectItems.length; i++) {
+          console.log(objectItems[i]);
+          let itemArray = {};
+          itemArray.label1 = "source"
+          itemArray.value1 = objectItems[i].source_path;
+          console.log("itemArray : " + JSON.stringify(itemArray));
+          this.itemFields.push(itemArray);
+         }
+      } catch (e){
+        alert("error")
+        this.returnMsg = e.message
+      }
+    },
+    add() {
         this.itemFields.push({ 
           label1: "source", 
           value1: ""
         })
      },
     
-     remove (index) {
+     remove(index) {
          this.itemFields.splice(index, 1)
      },
      initialState(){
-      this.releaseObject.release_dt = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
-      this.releaseObject.sys_code = ''
-      this.releaseObject.work_code = ''
-      this.releaseObject.content = ''
+      this.releaseObject = {
+        release_id: "",
+        release_dt: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        app_code: "ERP",
+        sys_code: "",
+        work_code: "",
+        content: ""
+      },
+      this.itemFields = [];
       //this.releaseObject. = ''
      },
-    parseDate (date) {
+    parseDate(date) {
       if (!date) return null
       const [month, day, year] = date.split('-')
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
