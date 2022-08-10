@@ -14,12 +14,6 @@
             >
           등록
           </v-btn>
-            <v-btn
-            color="red"
-            dark
-            >
-          삭제
-          </v-btn>
           <!-- </template> -->
         </v-card-actions>
         <v-data-table
@@ -134,6 +128,13 @@
                         </v-container>
                       </v-card-text>
                       <v-card-actions>
+                        <v-btn v-if="releaseObject.release_id"
+                          color="blue darken-1"
+                          text
+                          @click="deleteItem(releaseObject.release_id)"
+                        >
+                          delete
+                        </v-btn>
                         <v-spacer></v-spacer>
                         <v-btn
                           color="blue darken-1"
@@ -243,9 +244,11 @@ export default {
           console.log("release_id : " + this.releaseObject.release_id);
           if(this.releaseObject.release_id){
             let rslt = await this.$axios.get('/api/article/update', {params : { data: jsonArray}})
-            let rslt1 = await this.$axios.get('/api/article/deleteItems', {params : { release_id : this.releaseObject.release_id }})
-            let rslt2 = await this.$axios.get('/api/article/saveItems', {params : { release_id : this.releaseObject.release_id , sourceItems: sourceItems }})
-            if(rslt && rslt1 && rslt2) alert("변경 완료!")
+            if(this.itemFields.length > 0){
+              let rslt1 = await this.$axios.get('/api/article/deleteItems', {params : { release_id : this.releaseObject.release_id }})
+              let rslt2 = await this.$axios.get('/api/article/saveItems', {params : { release_id : this.releaseObject.release_id , sourceItems: sourceItems }})
+            }
+            if(rslt|| rslt1 || rslt2) alert("변경 완료!")
             this.closeDialog();
           }else{
           let result = await this.$axios.get('/api/article/makeReleaseId')
@@ -253,8 +256,10 @@ export default {
           this.releaseObject.release_id = this.releaseObject.app_code + '_' + next_id
           jsonArray = JSON.stringify(this.releaseObject);
           let rslt = await this.$axios.get('/api/article/save', {params : { data: jsonArray}})
-          let rslt2 = await this.$axios.get('/api/article/saveItems', {params : { release_id : this.releaseObject.release_id , sourceItems: sourceItems }})
-          if(rslt && rslt2) alert("저장 완료!")
+          if(this.itemFields.length > 0){
+            let rslt2 = await this.$axios.get('/api/article/saveItems', {params : { release_id : this.releaseObject.release_id , sourceItems: sourceItems }})
+          }
+          if(rslt || rslt2) alert("저장 완료!")
             this.closeDialog();
           }
         } catch (e){
@@ -271,7 +276,7 @@ export default {
         rslt1 = rslt1.data;
         console.log(rslt1);
         this.releaseObject.release_id = rslt1.release_id || '';
-        this.releaseObject.release_dt = rslt1.register_dt || '';
+        this.releaseObject.release_dt = rslt1.release_dt || '';
         this.releaseObject.app_code = rslt1.app_code || '';
         this.releaseObject.sys_code = rslt1.sys_code || '';
         this.releaseObject.work_code = rslt1.work_code || '';
@@ -295,6 +300,7 @@ export default {
         this.returnMsg = e.message
       }
     },
+
     add() {
         this.itemFields.push({ 
           label1: "source", 
@@ -305,6 +311,7 @@ export default {
      remove(index) {
          this.itemFields.splice(index, 1)
      },
+
      initialState(){
       this.releaseObject = {
         release_id: "",
@@ -317,11 +324,17 @@ export default {
       this.itemFields = [];
       //this.releaseObject. = ''
      },
+
     parseDate(date) {
+      console.log(date);
       if (!date) return null
-      const [month, day, year] = date.split('-')
+      //const [month, day, year] = date.split('-')
+      const [year, month, day] = date.split('-')
+      //console.log('${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}');
+      console.log(date.split('-'))
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
     },
+
     required: function(value) {
         if (value) {
           this.value = true
@@ -331,6 +344,23 @@ export default {
           return 'This field is required.';
         }
     },  
+
+    deleteItem(release_id) {
+      try {
+        if(confirm("게시물을 삭제하시겠습니까?")){
+          let rslt = this.$axios.get('/api/article/delete', {params : { release_id : release_id }})
+          if(rslt) {
+            alert("삭제 완료!");
+            this.closeDialog();
+          }else{
+            throw 'error';
+          }
+        }
+      } catch (e){
+        alert("error")
+        this.returnMsg = e.message
+      };
+    }
   }
 }
 </script>

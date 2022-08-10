@@ -1,15 +1,13 @@
-<template>
-  <main>
-    <h1>Home page</h1>
-    <NuxtLink to="/login">
-      About (internal link that belongs to the Nuxt App)
-    </NuxtLink>
-    <a href="https://nuxtjs.org">External Link to another page</a>
-  </main>
-</template>
+<template></template>
 
 <script>
+
 export default {
-  name: 'IndexPage'
+    created() {
+      //초기화면 라우팅
+    this.$router.push('/login')
+  },
 }
+
 </script>
++
