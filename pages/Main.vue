@@ -75,9 +75,9 @@
 </template>
 
 <script>
-import releaseList from '../pages/releaseList.vue'
-import userList from '../pages/userList.vue'
-import about from '../pages/about.vue'
+import releaseList from '../components/releaseList.vue'
+import userList from '../components/userList.vue'
+import about from '../components/about.vue'
 
 function requireAuth() {
 //function requireAuth(to: TODO, from: TODO, next: TODO) {
