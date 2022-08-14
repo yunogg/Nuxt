@@ -44,7 +44,7 @@
                   <v-list-item
                     v-for="(menu, i) in menus"
                     :key="i"
-                    @click="setCurrentView(menu.title)"
+                    @click="setCurrentView(menu.component)"
                   >
                     <v-list-item-icon>
                       <v-icon v-text="menu.icon"></v-icon>
@@ -102,23 +102,23 @@ function requireAuth() {
       ],
       menus: [
         {
-          title: 'ReleaseList',
+          title: 'Release',
           vertical: 'ReleaseList',
-          link: '/releaseList',
+          component: 'releaseList',
           icon: 'mdi-folder',
           beforeEnter: requireAuth
         },
         {
-          title: 'userList',
+          title: 'User',
           vertical: 'userList',
-          link: '/userList',
+          component: 'userList',
           icon: 'mdi-account'
         },
         {
           title: 'about',
           vertical: 'about',
-          link: '/about',
-          icon: 'mdi-info'
+          component: 'about',
+          icon: 'mdi-alert-circle'
         },
       ]
     }),
@@ -128,8 +128,8 @@ function requireAuth() {
       about
     },
     methods: {
-      setCurrentView(link) {
-        this.currentView = link
+      setCurrentView(component) {
+        this.currentView = component
       },
     }
   }
