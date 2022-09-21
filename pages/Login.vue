@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import SHA256 from 'crypto-js/sha256';
 
 export default {
   name: 'App',
@@ -60,8 +61,7 @@ export default {
         return false
         }
       try {
-        //let rslt = await this.$axios.get('/api/user')
-        let rslt = await this.$axios.get('/api/login',{params: {id: this.UserId, pw: this.UserPwd}})
+        let rslt = await this.$axios.get('/api/login',{params: {id: this.UserId, pw: SHA256(this.UserPwd).toString()||''}})
         console.log(rslt)
         if(rslt.data){
           this.redirect(this.$router.push('/main'))
